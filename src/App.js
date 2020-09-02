@@ -41,7 +41,6 @@ class App extends React.Component {
 
     calculateFaceLocation = (data) => {
         const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
-        console.log(data)
         const image = document.getElementById('inputimage');
         const width = Number(image.width);
         const height = Number(image.height);
@@ -55,7 +54,7 @@ class App extends React.Component {
     }
 
     displayFaceBox = (box) => {
-        console.log(box)
+
         this.setState({
             box: box
         })
