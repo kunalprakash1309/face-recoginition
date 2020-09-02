@@ -10,10 +10,9 @@ import Rank from './components/Rank/Rank'
 import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecoginition.js'
 import './App.css';
-import { tsImportEqualsDeclaration } from '@babel/types';
 
 const app = new Clarifai.App({
-    apiKey: 'bfb45b53c1764e25a1ee93ce76b98959'
+    apiKey: 'abf02afd47ae423d8e7f6eb860ab7956'
 });
 
 const particlesProperties = {
@@ -42,6 +41,7 @@ class App extends React.Component {
 
     calculateFaceLocation = (data) => {
         const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+        console.log(data)
         const image = document.getElementById('inputimage');
         const width = Number(image.width);
         const height = Number(image.height);
@@ -71,8 +71,6 @@ class App extends React.Component {
         this.setState({
             imageUrl: this.state.input
         })
-
-        console.log('hello')
         app.models.predict(
             Clarifai.FACE_DETECT_MODEL,
             this.state.input)
@@ -81,7 +79,6 @@ class App extends React.Component {
     }
 
     onRouteChange = (name) => {
-        console.log(this.state.route)
 
         this.setState({
             route: name
@@ -97,7 +94,6 @@ class App extends React.Component {
             }
         })
 
-        console.log(this.state.route)
     }
 
     render() {
