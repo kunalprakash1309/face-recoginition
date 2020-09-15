@@ -36,7 +36,24 @@ class App extends React.Component {
             box: {},
             route: 'signin',
             isSignedIn: false,
+            user: {
+                id: '',
+                name: '',
+                email: '',
+                entries: 0,
+                joined: ''
+            }
         }
+    }
+
+    loadUser = (data) => {
+        this.setState({user: {
+            id: data.id,
+            name: data.name,
+            email: data.email,
+            entries: data.entries,
+            joined: data.joined 
+        }})
     }
 
     calculateFaceLocation = (data) => {
@@ -44,7 +61,6 @@ class App extends React.Component {
         const image = document.getElementById('inputimage');
         const width = Number(image.width);
         const height = Number(image.height);
-        
         return {
             leftCol: clarifaiFace.left_col * width,
             topRow: clarifaiFace.top_row * height,
@@ -73,26 +89,33 @@ class App extends React.Component {
         app.models.predict(
             Clarifai.FACE_DETECT_MODEL,
             this.state.input)
-            .then(response => this.displayFaceBox(this.calculateFaceLocation(response)))
+            .then(response => {
+                if(response) {
+                    fetch('http://localhost:3000/image', {
+                        method: 'put',
+                        headers: {'Content-type': 'application/json'},
+                        body: JSON.stringify({
+                            id: this.state.user.id
+                        })
+                    })
+                    .then(response => response.json())
+                    .then(count => {
+                        this.setState(Object.assign(this.state.user, {entries: count}))
+                    })
+                }
+                this.displayFaceBox(this.calculateFaceLocation(response))
+            })
             .catch(err => console.log(err))
     }
 
-    onRouteChange = (name) => {
+    onRouteChange = (route) => {
 
-        this.setState({
-            route: name
-        }, function() {
-            if (this.state.route === 'home'){
-                this.setState({
-                    isSignedIn: true
-                })
-            }else if (this.state.route === 'signin' || this.state.route === 'register'){
-                this.setState({
-                    isSignedIn: false
-                })
-            }
-        })
-
+        if (route === 'signout') {
+            this.setState({isSignedIn: false})
+          } else if (route === 'home') {
+            this.setState({isSignedIn: true})
+          }
+          this.setState({route: route});
     }
 
     render() {
@@ -106,7 +129,7 @@ class App extends React.Component {
                 { this.state.route === 'home' ?
                     <div>
                         <Logo />
-                        <Rank />
+                        <Rank name={this.state.user.name} entries={this.state.user.entries} />
                         <ImageLinkForm 
                             onInputChange={this.onInputChange} 
                             onSubmit={this.onSubmit}
@@ -115,8 +138,8 @@ class App extends React.Component {
                     </div>
                    : (
                        this.state.route === 'signin'?
-                       <SignIn onRouteChange={this.onRouteChange} /> :
-                       <Register onRouteChange={this.onRouteChange} />
+                       <SignIn loadUser={this.loadUser} onRouteChange={this.onRouteChange} /> :
+                       <Register loadUser={this.loadUser} onRouteChange={this.onRouteChange} />
                    )
                     
                 }
