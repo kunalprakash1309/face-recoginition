@@ -1,7 +1,6 @@
 import React from 'react';
 import 'tachyons'
 import Particles from 'react-particles-js';
-import Clarifai from 'clarifai';
 import Navigation from './components/navigation/Navigation';
 import SignIn from './components/SingIn/SignIn'
 import Register from './components/Register/Register'
@@ -11,9 +10,6 @@ import ImageLinkForm from './components/ImageLinkForm/ImageLinkForm';
 import FaceRecognition from './components/FaceRecognition/FaceRecoginition.js'
 import './App.css';
 
-const app = new Clarifai.App({
-    apiKey: 'abf02afd47ae423d8e7f6eb860ab7956'
-});
 
 const particlesProperties = {
     particles: {
@@ -87,27 +83,32 @@ class App extends React.Component {
     onSubmit = () => {
         this.setState({
             imageUrl: this.state.input
-        })
-        app.models.predict(
-            Clarifai.FACE_DETECT_MODEL,
-            this.state.input)
-            .then(response => {
-                if(response) {
-                    fetch('http://localhost:3000/image', {
-                        method: 'put',
-                        headers: {'Content-type': 'application/json'},
-                        body: JSON.stringify({
-                            id: this.state.user.id
-                        })
-                    })
-                    .then(response => response.json())
-                    .then(count => {
-                        this.setState(Object.assign(this.state.user, {entries: count}))
-                    })
-                }
-                this.displayFaceBox(this.calculateFaceLocation(response))
+        });
+        fetch('http://localhost:3000/imageurl', {
+                method: 'post',
+                headers: {'Content-type': 'application/json'},
+                body: JSON.stringify({
+                input: this.state.input
             })
-            .catch(err => console.log(err))
+        })
+        .then(response => response.json())
+        .then(response => {
+            if(response) {
+                fetch('http://localhost:3000/image', {
+                    method: 'put',
+                    headers: {'Content-type': 'application/json'},
+                    body: JSON.stringify({
+                        id: this.state.user.id
+                    })
+                })
+                .then(response => response.json())
+                .then(count => {
+                    this.setState(Object.assign(this.state.user, {entries: count}))
+                })
+            }
+            this.displayFaceBox(this.calculateFaceLocation(response))
+        })
+        .catch(err => console.log(err))
     }
 
     onRouteChange = (route) => {
