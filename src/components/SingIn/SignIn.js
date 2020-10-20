@@ -7,6 +7,8 @@ class SignIn extends React.Component {
             signInEmail: '',
             signInPassword: ''
         }
+
+        this.onSubmitSignin = this.onSubmitSignin.bind(this);
     }
     onEmailChange = (event) => {
         this.setState({
@@ -21,7 +23,6 @@ class SignIn extends React.Component {
     }
 
     onSubmitSignin = () => {
-        let isLoggedIn = false;
         fetch('http://localhost:3000/signin', {
             method: 'post',
             headers: {'Content-type': 'application/json'},
@@ -33,12 +34,10 @@ class SignIn extends React.Component {
         .then(response => response.json())
         .then(data => {
             if (data.id){
-                isLoggedIn = true
                 this.props.loadUser(data)
                 this.props.onRouteChange('home')
             }
         })
-        this.props.onRouteChange('home')
     }
     
     render() {
@@ -59,7 +58,7 @@ class SignIn extends React.Component {
                             </div>
                         </fieldset>
                         <div className="">
-                            <input onClick={this.onSubmitSignin} className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="submit" value="Sign in" />
+                            <input onClick={this.onSubmitSignin} className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" type="button" value="Sign in" />
                             </div>
                             <div className="lh-copy mt3">
                             <p onClick={() => onRouteChange('register')} className="f6 link dim black db pointer">Register</p>
